@@ -1,0 +1,467 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Youth Services Navigator – prototype</title>
+<style>
+:root{--bg:#f4f1ea;--card:#fff;--ink:#1d2433;--mute:#667085;--line:#e3ded2;--brand:#0b6b4f;--brand2:#e8f3ee;--warn:#b54708;--warnbg:#fff4e5;--bad:#b42318;--badbg:#fdecea;--me:#d9f2e6;--accent:#c8961e}
+@media (prefers-color-scheme:dark){:root{--bg:#14171c;--card:#1d222a;--ink:#eef1f5;--mute:#9aa4b2;--line:#2c333d;--brand:#3cc79a;--brand2:#18322a;--warn:#f5a84b;--warnbg:#33260f;--bad:#f97066;--badbg:#38191a;--me:#1f4a3a;--accent:#e3b341}}
+*{box-sizing:border-box}
+body{margin:0;font:15px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--ink)}
+header{padding:14px 16px;border-bottom:1px solid var(--line);background:var(--card)}
+header h1{margin:0;font-size:18px}
+header p{margin:2px 0 0;color:var(--mute);font-size:13px}
+.banner{position:sticky;top:0;z-index:5;font-weight:600;background:var(--warnbg);color:var(--warn);padding:8px 16px;font-size:12.5px;border-bottom:1px solid var(--line)}
+nav{display:flex;gap:4px;padding:8px 12px;background:var(--card);border-bottom:1px solid var(--line);overflow-x:auto}
+nav button{border:0;background:none;color:var(--mute);padding:8px 12px;border-radius:8px;font:inherit;cursor:pointer;white-space:nowrap}
+nav button.on{background:var(--brand2);color:var(--brand);font-weight:600}
+main{max-width:1000px;margin:0 auto;padding:16px}
+.panel{display:none}.panel.on{display:block}
+.row{display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start}
+.phone{flex:1 1 360px;max-width:440px;background:var(--card);border:1px solid var(--line);border-radius:18px;overflow:hidden;display:flex;flex-direction:column;height:640px}
+.phone .top{padding:10px 12px;background:var(--brand);color:#fff;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.phone .top b{font-size:15px}
+.phone .top select,.phone .top button{font:inherit;font-size:12px;border-radius:6px;border:0;padding:3px 6px}
+.chat{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px}
+.big .chat{font-size:18px}
+.msg{max-width:88%;padding:8px 11px;border-radius:12px;white-space:pre-wrap}
+.msg.bot{background:var(--brand2);align-self:flex-start;border-top-left-radius:3px}
+.msg.me{background:var(--me);align-self:flex-end;border-top-right-radius:3px}
+.src{display:block;margin-top:6px;font-size:12px;color:var(--mute);border-top:1px dashed var(--line);padding-top:4px}
+.src b{color:var(--ink)}
+.checks{margin-top:6px;font-size:11.5px}
+.checks summary{cursor:pointer;color:var(--mute)}
+.ok{color:var(--brand)}.no{color:var(--bad)}
+.chips{display:flex;gap:6px;flex-wrap:wrap;padding:6px 12px}
+.chips button{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;padding:5px 10px;font:inherit;font-size:13px;cursor:pointer}
+.compose{display:flex;gap:6px;padding:10px;border-top:1px solid var(--line)}
+.compose input{flex:1;padding:9px 10px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font:inherit}
+.btn{background:var(--brand);color:#fff;border:0;border-radius:10px;padding:9px 14px;font:inherit;cursor:pointer}
+.btn.alt{background:var(--card);color:var(--ink);border:1px solid var(--line)}
+.btn:disabled{opacity:.5}
+.form{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px;display:flex;flex-direction:column;gap:6px;align-self:stretch}
+.form input,.form select{padding:7px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font:inherit}
+.form label{font-size:12.5px;color:var(--mute)}
+.side{flex:1 1 300px;display:flex;flex-direction:column;gap:12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.card h3{margin:0 0 6px;font-size:14px}
+.card ul{margin:4px 0 0;padding-left:18px;color:var(--mute);font-size:13px}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th,td{text-align:left;padding:8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:var(--mute);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.03em}
+.tag{display:inline-block;padding:1px 8px;border-radius:999px;font-size:12px;background:var(--brand2);color:var(--brand)}
+.tag.warn{background:var(--warnbg);color:var(--warn)}.tag.bad{background:var(--badbg);color:var(--bad)}
+.bar{height:10px;background:var(--brand);border-radius:5px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:12px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.kpi b{font-size:24px;display:block}.kpi span{font-size:12px;color:var(--mute)}
+.muted{color:var(--mute);font-size:13px}
+h2{font-size:16px;margin:0 0 8px}
+#demoBtn{position:fixed;bottom:14px;right:14px;z-index:9;box-shadow:0 4px 14px rgba(0,0,0,.3)}
+.flow{display:flex;flex-wrap:wrap;align-items:stretch;gap:6px}
+.flow i{align-self:center;color:var(--mute);font-style:normal}
+.node{flex:1 1 120px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px;font-weight:600;font-size:13.5px}
+.node small{display:block;font-weight:400;color:var(--mute);font-size:12px;margin-top:4px}
+.sub{display:block;font-size:12px;opacity:.75;font-style:italic;margin-top:3px}
+.mic{position:relative;border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:0 10px;cursor:not-allowed;opacity:.8}
+.badge{position:absolute;bottom:105%;right:0;background:var(--warnbg);color:var(--warn);font-size:11px;padding:3px 7px;border-radius:6px;white-space:nowrap}
+@media(max-width:480px){.phone{height:78vh}}
+</style>
+</head>
+<body>
+<header>
+  <h1>Youth Services Navigator <span class="tag">prototype</span></h1>
+  <p>AI connecting Koforidua's young people to jobs and skills · STAR-Ghana · CRIA · NJSMA</p>
+</header>
+<div class="banner">PROTOTYPE DEMONSTRATION · SYNTHETIC DATA. Illustrative demo. Catalogue entries, dates, locations and Twi wording are placeholders: real entries must be verified by NJSMA service owners, and Twi by two fluent reviewers. Replies are rule-based retrieval, not a live language model.</div>
+<nav id="tabs">
+  <button data-t="chat" class="on">Young person (chat)</button>
+  <button data-t="officer">Officer console</button>
+  <button data-t="dash">Needs dashboard</button>
+  <button data-t="cat">Service catalogue</button>
+  <button data-t="arch">Architecture (proposed)</button>
+  <button data-t="about">How it follows the proposal</button>
+</nav>
+<main>
+
+<section id="chat" class="panel on">
+  <div class="row">
+    <div class="phone" id="phone">
+      <div class="top">
+        <b>Navigator</b>
+        <span>
+          <select id="channel" title="Channel">
+            <option value="whatsapp">WhatsApp</option>
+            <option value="sms">Basic-phone SMS</option>
+            <option value="help">Help point (facilitator)</option>
+          </select>
+          <select id="lang" title="Language">
+            <option value="auto">Auto Twi/English</option>
+            <option value="en">English</option>
+            <option value="tw">Twi</option>
+          </select>
+          <button id="reset">Reset</button>
+        </span>
+      </div>
+      <div class="chat" id="log" aria-live="polite"></div>
+      <div class="chips" id="chips"></div>
+      <form class="compose" id="composer" autocomplete="off">
+        <input id="box" placeholder="Ask in Twi, English or both…" aria-label="Message">
+        <span class="mic" title="Planned feature, subject to Twi speech testing">🎤<span class="badge">Planned feature, subject to Twi speech testing</span></span><button class="btn" type="submit">Send</button>
+      </form>
+    </div>
+    <div class="side">
+      <div class="card"><h3>Demo: Efua's journey</h3><p class="muted" style="margin:0">Use the floating button (bottom right, visible on every tab) to step through video script section 3. Invented data only.</p><button class="btn" id="demoBtn">▶ Step 1: Efua asks in Twi</button></div>
+      <div class="card"><h3>Try these</h3>
+        <ul>
+          <li>"Me pɛ sɛ me sua ntadeɛ sɛw" (tailoring, code-switched)</li>
+          <li>"Is there a start-up kit for my small business?"</li>
+          <li>"Do I qualify for it?" (explains criteria, never decides)</li>
+          <li>"Training for a person with disability"</li>
+          <li>"Welding apprenticeship" (entry expired, so it is withheld)</li>
+          <li>"Where can I leave my child while I train?" (no entry, so it hands over and logs unmet demand)</li>
+        </ul>
+      </div>
+      <div class="card"><h3>Last answer: automated checks</h3><div id="lastChecks" class="muted">Ask something to see the rule checks.</div></div>
+    </div>
+  </div>
+</section>
+
+<section id="officer" class="panel">
+  <h2>Officer console</h2>
+  <p class="muted">Consented, complete referrals arrive here. The officer decides and contacts the young person. Role-based view by department.</p>
+  <p><label class="muted">Viewing as&nbsp;
+    <select id="role" class="btn alt"></select></label></p>
+  <div class="card"><table id="refTable"></table><p id="refEmpty" class="muted">No referrals yet. Create one from the chat tab.</p></div>
+</section>
+
+<section id="dash" class="panel">
+  <h2>Anonymised needs dashboard <span class="tag warn">mock · synthetic data</span></h2>
+  <p class="muted">Quarterly findings for town halls, the Youth Parliament and Assembly committees. Cells under 5 are suppressed. Seed rows are synthetic demo data.</p>
+  <div class="kpis" id="kpis"></div>
+  <div class="row">
+    <div class="card" style="flex:1 1 320px"><h3>What young people ask about</h3><div id="themes"></div></div>
+    <div class="card" style="flex:1 1 320px"><h3>Unmet demand (no catalogue entry or expired)</h3><div id="unmet"></div></div>
+  </div>
+  <div class="card" style="margin-top:12px"><h3>Users by sex (optional, self-reported)</h3><div id="sex"></div></div>
+  <p><button class="btn alt" id="clearData">Clear my demo activity</button></p>
+</section>
+
+<section id="cat" class="panel">
+  <h2>Verified service catalogue</h2>
+  <p class="muted">Each entry has a named owner and review dates. Expired entries are withheld from answers.</p>
+  <div class="card"><table id="catTable"></table></div>
+</section>
+
+<section id="arch" class="panel">
+  <h2>Proposed architecture <span class="tag warn">proposed</span></h2>
+  <div class="flow">
+    <div class="node">Channels chosen in co-design<small>WhatsApp and text expected; help points</small></div><i>→</i>
+    <div class="node">Consent and privacy layer<small>strips details we do not need</small></div><i>→</i>
+    <div class="node">Verified service catalogue<small>retrieval; named owners, review dates</small></div><i>→</i>
+    <div class="node">Language model<small>answers only from retrieved entries</small></div><i>→</i>
+    <div class="node">Rule-based checks<small>block uncited, expired, eligibility-deciding answers</small></div><i>→</i>
+    <div class="node">Answer with source, or hand over<small>if unsure, to a person</small></div><i>→</i>
+    <div class="node">Officer referral<small>officer reviews and decides</small></div>
+  </div>
+  <div class="row" style="margin-top:12px">
+   <div class="card" style="flex:1 1 260px"><h3>Eligibility decisions: officers only</h3><p class="muted">The system explains published criteria. It never decides.</p></div>
+   <div class="card" style="flex:1 1 260px"><h3>Channel- and model-independent design</h3><p class="muted">Candidates to compare before selection: hosted OpenAI and Anthropic models, and an open-weight model such as Llama or Qwen. No model testing has been done yet. In this prototype the language-model step is replaced by pre-written, catalogue-grounded replies.</p></div>
+  </div>
+</section>
+
+<section id="about" class="panel">
+  <div class="card"><h3>What this prototype demonstrates (from the Round 1 answer pack)</h3>
+    <ul>
+      <li><b>Q30/Q32</b>: question in Twi, English or a mix → retrieval from NJSMA catalogue → plain-language answer with sources → consented referral draft.</li>
+      <li><b>Q34/Q41</b>: rule checks block uncited, out-of-date and eligibility-deciding answers; uncertainty or distress hands over to a person; channel-agnostic (WhatsApp, SMS, help point).</li>
+      <li><b>Q33</b>: Efua's journey: tailoring query, criteria explained, officer reviews and decides.</li>
+      <li><b>Q30 activity 5/Q40</b>: anonymised dashboard with small-number suppression, disaggregated by sex.</li>
+      <li><b>Q39</b>: minimal data, explicit consent; sensitive questions optional; logs hold no names.</li>
+    </ul>
+  </div>
+  <div class="card" style="margin-top:12px"><h3>Not in this prototype</h3>
+    <ul><li>Real language model, Twi speech, real WhatsApp/SMS gateways, authentication, a database, Data Protection Commission-compliant storage. State lives in this browser only.</li></ul>
+  </div>
+</section>
+</main>
+
+<script>
+const TODAY = new Date();
+const CAT = [
+ {id:"C01",name:"Tailoring and dressmaking training",nameTw:"Ntadeɛ sɛw ne ntade pam adesua",owner:"Business Advisory Centre (NJSMA)",dept:"Business Advisory Centre",confirmed:"2026-10-12",review:"2027-04-12",
+  kw:["tailor","sewing","dressmak","seamstress","sɛw","ntade","ntadeɛ","pam","kente"],
+  en:"The Business Advisory Centre lists tailoring and dressmaking training for young people aged 18 to 35 who live in the municipality. Bring your ID and a short note on your experience, if any. Go to the Business Advisory Centre at the NJSMA offices in Koforidua.",
+  tw:"Business Advisory Centre de ntadeɛ sɛw ne ntade pam adesua ma mmabunu a wɔadi mfeɛ 18 kosi 35 na wɔtena mpaboa no mu. Fa wo ID ne wo ase kyerɛ sɛ wowɔ osuahu bi. Kɔ Business Advisory Centre wɔ NJSMA ofis no wɔ Koforidua.",
+  criteria:"Published criteria: aged 18 to 35; lives in New Juaben South; ID. Places are limited and the officer decides."},
+ {id:"C02",name:"Youth start-up kits",nameTw:"Mmabunu adwuma-hyɛ-ase nnwinnade",owner:"Local Economic Development unit (NJSMA)",dept:"Planning Coordinating Unit",confirmed:"2026-09-30",review:"2027-03-30",
+  kw:["kit","start-up","startup","business","enterprise","adwuma","bɔɔ","small business","akonta"],
+  en:"The Assembly's Local Economic Development plan funds start-up kits for youth trainees (20 kits in the 2026 plan). Ask the Local Economic Development unit what trade kits are available this round and what you must submit.",
+  tw:"Assembly no Local Economic Development nhyehyɛeɛ no de adwuma-hyɛ-ase nnwinnade ma mmabunu a wɔresua adwuma (nnwinnade 20 wɔ afe 2026 nhyehyɛeɛ no mu). Bisa Local Economic Development ofis no nnwinnade a ɛwɔ hɔ mprempren ne nea ɛsɛ sɛ wode bɛkɔ.",
+  criteria:"Published criteria: youth trainee in a recognised trade; application to the LED unit; limited kits, officer decides."},
+ {id:"C03",name:"Digital skills for women in small businesses",nameTw:"Mmea a wɔwɔ nkɔso-adwuma: dijitaa nimdeɛ",owner:"Business Advisory Centre (NJSMA)",dept:"Business Advisory Centre",confirmed:"2026-10-20",review:"2027-04-20",
+  kw:["digital","computer","phone","online","social media","dijitaa","kɔmputa","woman","women","ɔbaa","mmea"],
+  en:"A digital skills course for women who run small businesses: using a phone to take payments, advertise and keep records. Small numbers each round (7 women in the current plan). Register interest at the Business Advisory Centre.",
+  tw:"Dijitaa nimdeɛ adesua ma mmea a wɔwɔ nkɔso-adwuma nketewa: sɛnea wode fon bɛtumi agye sika, ayi adwuma akyerɛ ne akoraa nsɛm. Wɔfa nnipa kakraa bi mprɛnsa biara (mmea 7 wɔ nhyehyɛeɛ no mu). Kɔ kyerɛ wo pɛ wɔ Business Advisory Centre.",
+  criteria:"Published criteria: woman running a small business in the municipality; limited places."},
+ {id:"C04",name:"Skills training for persons with disabilities",nameTw:"Ahoɔdeɛ nimdeɛ adesua ma nnipa a wɔwɔ bone",owner:"Department of Social Welfare and Community Development (NJSMA)",dept:"Social Welfare",confirmed:"2026-10-05",review:"2027-04-05",
+  kw:["disab","wheelchair","blind","deaf","bone","kyɛ","kum","disabled","pwd","handicap"],
+  en:"The Department of Social Welfare and Community Development lists enterprise and skills training for persons with disabilities. Visit or call the department to register; a facilitator can help you fill in the form.",
+  tw:"Department of Social Welfare and Community Development de adwuma ne nimdeɛ adesua ma nnipa a wɔwɔ bone. Kɔ ofis no anaa frɛ wɔn kɔkyerɛ wo pɛ; facilitator bi betumi aboa wo ayɛ foma no.",
+  criteria:"Published criteria: person with a disability resident in the municipality; assessment by Social Welfare."},
+ {id:"C05",name:"Youth Employment Agency (YEA) schemes",nameTw:"Youth Employment Agency nhyehyɛeɛ",owner:"National agency, listed by NJSMA",dept:"Planning Coordinating Unit",confirmed:"2026-11-02",review:"2027-05-02",
+  kw:["job","work","employment","yea","adwuma","hunu","unemployed","vacancy"],
+  en:"The Youth Employment Agency is a national programme with job and skills schemes. Intake and rules are set nationally and change. The Navigator can refer you to an NJSMA officer who helps you check what is open now.",
+  tw:"Youth Employment Agency yɛ ɔman nyinaa nhyehyɛeɛ a ɛwɔ adwuma ne nimdeɛ akwan. Mmara ne nea wogye nsesa. Navigator betumi de wo akɔ NJSMA ɔfisani bi nkyɛn a ɔbɛboa wo ahwɛ nea ɛbue mprempren.",
+  criteria:"Criteria are set nationally by YEA; an officer will help you check the current rules."},
+ {id:"C06",name:"National Apprenticeship Programme",nameTw:"Ɔman Apɔnkyerɛ Adesua Nhyehyɛeɛ",owner:"Ghana Enterprises Agency, listed by NJSMA",dept:"Business Advisory Centre",confirmed:"2026-10-28",review:"2027-04-28",
+  kw:["apprentice","trade","learn a trade","master","ɔbarima","adesua","apprenticeship","craft"],
+  en:"The National Apprenticeship Programme places young people with trained masters in a trade. Rounds are national; the Business Advisory Centre can tell you when the next intake opens.",
+  tw:"National Apprenticeship Programme de mmabunu to nwura a wɔabɔ nkɔso wɔ adwuma bi mu nkyɛn. Mprɛnsa no yɛ ɔman nyinaa de; Business Advisory Centre betumi aka bere a ɛfa a ɛbɛbue no akyerɛ wo.",
+  criteria:"Criteria are set nationally; the Business Advisory Centre can confirm the current round."},
+ {id:"C07",name:"NEIP entrepreneurship support",nameTw:"NEIP adwuma-hyɛ-ase mmoa",owner:"National Entrepreneurship and Innovation Programme, listed by NJSMA",dept:"Business Advisory Centre",confirmed:"2026-11-10",review:"2027-05-10",
+  kw:["neip","loan","capital","fund","grant","sika","innovation","startup funding"],
+  en:"The National Entrepreneurship and Innovation Programme (NEIP) supports start-ups with training and funding in national rounds. Rules and deadlines are set by NEIP; an officer can help you read them.",
+  tw:"National Entrepreneurship and Innovation Programme (NEIP) boa adwuma-hyɛ-ase ahyɛaseɛ wɔ ɔman nyinaa mprɛnsa mu. NEIP na ɛhyehyɛ mmara ne da; ɔfisani bi betumi aboa wo akenkan.",
+  criteria:"Criteria are set by NEIP; not decided by the Navigator."},
+ {id:"C09",name:"Tailoring: private trainer (listed)",nameTw:"Ntadeɛ sɛw: ɔdesuafoɔ ankasa",owner:"Business Advisory Centre (NJSMA), private provider list",dept:"Business Advisory Centre",confirmed:"2026-11-03",review:"2027-05-03",
+  kw:["tailor","sewing","sɛw","ntadeɛ","seamstress"],
+  en:"A private tailoring trainer on the Assembly's provider list runs evening classes for a fee. Bring your ID and ask about fees and class hours. Located at a workshop in Adweso (invented example).",
+  tw:"Ntadeɛ sɛw ɔdesuafoɔ bi a ɔwɔ Assembly no adwumayɛfoɔ nsɛmma mu yɛ anwummere adesua a wotua sika. Fa wo ID bra na bisa sika ne bere. Wɔwɔ adwuma-fie wɔ Adweso (nhwɛsoɔ a wɔasiesie).",
+  criteria:"Published terms: open to anyone aged 18 and over; fee set by the trainer."},
+ {id:"C08",name:"Welding apprenticeship intake (2026)",nameTw:"Welding adesua (2026)",owner:"Business Advisory Centre (NJSMA)",dept:"Business Advisory Centre",confirmed:"2026-01-15",review:"2026-06-30",
+  kw:["weld","welding","metal","fabricat"],
+  en:"(entry text)",tw:"(entry text)",criteria:""}
+];
+const REF_DEPTS=["All departments","Business Advisory Centre","Planning Coordinating Unit","Social Welfare"];
+const ELIG=/(qualif|eligib|allowed|entitled|can i get|will i get|metumi anya|mehia anaa)/i;
+const DISTRESS=/(abuse|rape|beat|hit me|hurt myself|suicid|kill|violence|afa me|abusua mmusuo|bɔ me|help me, i am unsafe|unsafe)/i;
+const YES=/^(yes|y|ok|okay|aane|aane\.|yoo|yɛ|agree|i agree|me pene so)\b/i;
+const NO=/^(no|n|daabi|dabi|nope)\b/i;
+
+const $=s=>document.querySelector(s);
+const store={get(k,d){try{return JSON.parse(localStorage.getItem(k))??d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+let refs=store.get("ysn_refs",[]), logs=store.get("ysn_logs",[]);
+let st={step:"idle",entry:null,lang:"en",sex:"",lastQ:""};
+
+const isCurrent=e=>new Date(e.review+"T23:59:59")>=TODAY;
+const isTwi=t=>/[ɛɔƐƆ]|\b(me|mepɛ|pɛ|sɛ|wo|ɛ|na|ne|anaa|aane|daabi|akwaaba|medaase|mepa wo kyɛw|ntadeɛ|adwuma|sɛw)\b/i.test(t);
+
+/* ---------- tabs ---------- */
+document.querySelectorAll("#tabs button").forEach(b=>b.onclick=()=>{
+  document.querySelectorAll("#tabs button").forEach(x=>x.classList.toggle("on",x===b));
+  document.querySelectorAll(".panel").forEach(p=>p.classList.toggle("on",p.id===b.dataset.t));
+  if(b.dataset.t==="officer")renderOfficer();
+  if(b.dataset.t==="dash")renderDash();
+  if(b.dataset.t==="cat")renderCat();
+});
+
+/* ---------- chat ---------- */
+const log=$("#log"),chips=$("#chips");
+function lang(){const v=$("#lang").value;return v==="auto"?st.lang:v}
+function T(en,tw){return lang()==="tw"?tw:en}
+function add(who,text,opts={}){
+  const d=document.createElement("div");d.className="msg "+who;d.textContent=text;
+  if(opts.sub){const u=document.createElement("span");u.className="sub";u.textContent="English subtitle: "+opts.sub;d.appendChild(u)}
+  if(opts.src&&opts.src.length){
+    opts.src.forEach(e=>{const s=document.createElement("span");s.className="src";
+      s.innerHTML="<b>Source:</b> "+esc(e.name)+" · "+esc(e.owner)+" · last confirmed "+e.confirmed;d.appendChild(s)});
+  }
+  if(opts.checks){const det=document.createElement("details");det.className="checks";
+    det.innerHTML="<summary>Checks</summary>"+opts.checks.map(c=>`<div class="${c.ok?'ok':'no'}">${c.ok?'✓':'✗'} ${esc(c.label)}</div>`).join("");d.appendChild(det)}
+  log.appendChild(d);log.scrollTop=log.scrollHeight;return d;
+}
+function esc(s){return s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
+function setChips(list){chips.innerHTML="";list.forEach(([label,val])=>{const b=document.createElement("button");b.textContent=label;b.onclick=()=>send(val||label);chips.appendChild(b)})}
+function showChecks(cs){$("#lastChecks").innerHTML=cs.map(c=>`<div class="${c.ok?'ok':'no'}">${c.ok?'✓':'✗'} ${esc(c.label)}</div>`).join("")}
+
+/* rule checks run on every answer before it is shown */
+function guard(text,cites){
+  return [
+   {label:"Answer cites at least one catalogue entry",ok:cites.length>0},
+   {label:"All cited entries are within their review date",ok:cites.every(isCurrent)},
+   {label:"Makes no eligibility decision",ok:!/(?<!whether )(?<!if )\b(you (do )?qualify|you are eligible|you will (get|receive)|you are accepted)\b/i.test(text)}
+  ];
+}
+function retrieve(q){
+  const s=q.toLowerCase();
+  return CAT.map(e=>({e,score:e.kw.reduce((a,k)=>a+(s.includes(k.toLowerCase())?1:0),0)})).filter(x=>x.score>0).sort((a,b)=>b.score-a.score||(isCurrent(a.e)-isCurrent(b.e))).map(x=>x.e);
+}
+function record(theme,matched,status){
+  logs.push({t:Date.now(),theme,matched,status,sex:st.sex||"",demo:false});store.set("ysn_logs",logs);
+}
+function handover(reason,q){
+  const msg=T("I am not able to answer that reliably, so I am handing you to a person at NJSMA rather than guess. Would you like an officer to contact you? (yes / no)",
+              "Metumi nnyina yei so mfa ho nkyerɛ wo yiye, enti mede wo rekɔ NJSMA onipa bi nkyɛn sen sɛ me bɛkyerɛ wo nea mensi. Wopɛ sɛ ɔfisani bi frɛ wo anaa? (aane / daabi)");
+  add("bot",msg);log.lastChild.dataset.r=reason;
+  st.step="offerGeneric";st.entry=null;
+  setChips([[T("Yes","Aane"),"yes"],[T("No","Daabi"),"no"]]);
+  showChecks([{label:"Handed to a person: "+reason,ok:true},{label:"No uncited answer produced",ok:true}]);
+}
+function short(txt){return $("#channel").value==="sms"?txt.split(". ").slice(0,2).join(". ").replace(/\.?$/,".")+" Reply YES for an officer.":txt}
+
+function ask(q){
+  if(!(ELIG.test(q)&&!retrieve(q).length&&st.last))st.lastQ=q;
+  if(isTwi(q))st.lang="tw";else if(/[a-z]{3}/i.test(q))st.lang="en";
+  if(DISTRESS.test(q)){
+    add("bot",T("I am sorry. You do not have to face this alone. I am passing this to a trained NJSMA Social Welfare staff member who will treat it privately. If you are in danger now, call 191 (police) or 112.",
+                "Mepa wo kyɛw. Ɛnsɛ sɛ wo nko ara de wo ho gyina. Mede yei rekɔ NJSMA Social Welfare ɔfisani a wɔatete no nkyɛn a ɔbɛhwɛ no yie. Sɛ w'ani wɔ asiane mu seesei a, frɛ 191 (polisifo) anaa 112."));
+    record("Safeguarding (handed to staff)",false,"safeguard");
+    showChecks([{label:"Distress detected: routed to trained staff under protocol",ok:true},{label:"Not stored with personal details",ok:true}]);
+    st.step="idle";setChips([]);return;
+  }
+  let hits=retrieve(q);
+  if(!hits.length&&ELIG.test(q)&&st.last)hits=[st.last];
+  const current=hits.filter(isCurrent), expired=hits.filter(e=>!isCurrent(e));
+  // if the best match is an expired entry, withhold rather than silently answer from a weaker one
+  if(!current.length||(hits.length&&!isCurrent(hits[0]))){
+    record(expired.length?expired[0].name+" (expired)":"Other / not in catalogue",false,"unmet");
+    if(expired.length)add("bot",T("I found an entry on this, but NJSMA's review date for it has passed, so I will not give you possibly out-of-date details.","Mahunu nsɛm bi ho, nanso NJSMA nhwehwɛmu da no atwam, enti merenkyerɛ wo nsɛm a ebia ayɛ dada."));
+    handover(expired.length?"entry expired and withheld":"no catalogue match",q);
+    return;
+  }
+  const top=current[0];
+  const wantsElig=ELIG.test(q);
+  const sc=e=>e.kw.reduce((n,k)=>n+(q.toLowerCase().includes(k.toLowerCase())?1:0),0);
+  const picks=wantsElig?[top]:current.filter((e,i)=>i===0||(i<2&&sc(e)>=sc(top)-1));
+  let text;
+  if(wantsElig){
+    text=T("I cannot decide whether you qualify. That is for the officer. Here are the published criteria for \""+top.name+"\": ","Mintumi nsi gyinae sɛ wobɛtumi anya anaa. Ɛyɛ ɔfisani adwuma. Ɛyi ne mmara a wɔakyerɛ ho \""+top.name+"\": ")+top.criteria.replace(/^Published (criteria|terms): /,"");
+  } else if(picks.length>1){
+    text=picks.map((e,i)=>(i+1)+") "+e.name+"\n"+(lang()==="tw"?e.tw:e.en)).join("\n\n");
+  } else text=lang()==="tw"?top.tw:top.en;
+  const cs=guard(text,picks);
+  if(!cs.every(c=>c.ok)){handover("a rule check failed",q);return}
+  add("bot",short(text),{src:picks,checks:cs});
+  showChecks(cs.concat([{label:"Language: "+(lang()==="tw"?"Twi":"English")+" (draft wording, needs fluent review)",ok:true}]));
+  record(top.name,true,"answered");
+  st.entry=top;st.last=top;st.step="offerRef";
+  setTimeout(()=>{add("bot",T("Would you like me to draft a referral so an officer can contact you about this? You choose; I will ask your consent first. (yes / no)",
+    "Wopɛ sɛ metwerɛ referral a ɛbɛma ɔfisani bi afrɛ wo afa eyi ho? Wo na wopaw; mɛbisa wo ho kwan kane. (aane / daabi)"));
+    setChips(wantsElig?[[T("Prepare a referral (with my consent)","Siesie referral (me ho kwan so)"),"yes"],[T("No thanks","Daabi"),"no"]]:[[T("Yes","Aane"),"yes"],[T("No","Daabi"),"no"]])},250);
+}
+
+function flow(q){
+  const yes=YES.test(q.trim()),no=NO.test(q.trim());
+  if(st.step==="offerRef"||st.step==="offerGeneric"){
+    if(yes){
+      st.step="consent";
+      add("bot",T("Before I share anything: I will send only your first name, phone number and this question to the responsible NJSMA officer, so they can contact you. Nothing else. You can ask me to delete it at any time. Do you agree? (yes / no)",
+        "Ansa na mama obiara ahunu biribi: mɛma wo din a ɛdi kan, wo fon nɔma ne nsɛmmisa yi nko ara ɔfisani a ɔhwɛ so no na wɔafrɛ wo. Biribiara foforo. Wobɛtumi aka sɛ menyi nyinaa bere biara. Wopene so? (aane / daabi)"));
+      setChips([[T("I agree","Mepene so"),"yes"],[T("No","Daabi"),"no"]]);return true;
+    }
+    if(no){st.step="idle";add("bot",T("No problem. Nothing has been sent. Ask me anything else.","Ɛnyɛ den. Memmaa hwee. Bisa me biribi foforo."));setChips([]);return true}
+  }
+  if(st.step==="consent"){
+    if(yes){
+      st.step="form";
+      const f=document.createElement("form");f.className="form";
+      f.innerHTML=`<label>${T("First name","Wo din a ɛdi kan")}<input name="n" required></label>
+        <label>${T("Phone number","Fon nɔma")}<input name="p" required inputmode="tel"></label>
+        <label>${T("Optional: sex (anonymised monitoring only)","Nyiyimu: ɔbarima/ɔbaa (nhwehwɛmu nkutoo)")}
+          <select name="s"><option value="">${T("Prefer not to say","Mepɛ sɛ mensie")}</option><option value="F">${T("Woman","Ɔbaa")}</option><option value="M">${T("Man","Ɔbarima")}</option></select></label>
+        <label><input type="checkbox" name="d"> ${T("Optional: I live with a disability (anonymised monitoring only)","Nyiyimu: mewɔ bone (nhwehwɛmu nkutoo)")}</label>
+        <button class="btn">${T("Send referral draft","Soma referral no")}</button>`;
+      f.onsubmit=ev=>{ev.preventDefault();const d=new FormData(f);submitRef(d.get("n"),d.get("p"),d.get("s"),!!d.get("d"));f.remove()};
+      log.appendChild(f);log.scrollTop=log.scrollHeight;setChips([]);return true;
+    }
+    if(no){st.step="idle";add("bot",T("Understood. Nothing has been shared.","Mehu. Memmaa hwee."));setChips([]);return true}
+  }
+  return false;
+}
+function submitRef(name,phone,sex,dis){
+  const e=st.entry;
+  const r={id:"R"+String(refs.length+1).padStart(3,"0"),created:Date.now(),first:name,phone,
+    service:e?e.name:"General enquiry (no catalogue match)",dept:e?e.dept:"Planning Coordinating Unit",
+    question:st.lastQ,lang:lang(),channel:$("#channel").value,status:"New",note:"",consent:new Date().toISOString(),sex,dis,
+    summary:e?"Asked about "+e.name+". Information given from catalogue entry "+e.id+" (confirmed "+e.confirmed+"). Young person asked for officer contact.":"Question could not be answered from the catalogue; officer contact requested."};
+  refs.push(r);store.set("ysn_refs",refs);
+  if(sex){const l=logs[logs.length-1];if(l){l.sex=sex;store.set("ysn_logs",logs)}}
+  st.sex=sex||"";
+  add("bot",T("Done. Your referral "+r.id+" has gone to the "+r.dept+" officer. They will review it, decide and contact you. The Navigator does not decide for them.",
+    "Awie. Wo referral "+r.id+" akɔ "+r.dept+" ɔfisani no nkyɛn. Ɔbɛhwɛ, ɔbɛsi gyinae na wafrɛ wo. Navigator no nsi gyinae ma no."));
+  st.step="idle";st.entry=null;setChips([]);
+}
+
+function send(q,opts){
+  q=q.trim();if(!q)return;
+  add("me",q,opts||{});
+  if(!flow(q))ask(q);
+}
+$("#composer").onsubmit=e=>{e.preventDefault();const b=$("#box");const v=b.value;b.value="";send(v)};
+$("#channel").onchange=()=>{const c=$("#channel").value;$("#phone").classList.toggle("big",c==="help");
+  if(c==="help")add("bot",T("Help-point mode: a facilitator can read and type with you. Text is larger.","Help-point: facilitator betumi akenkan ne akyerɛw ne wo. Nsɛm no sõ."));
+  if(c==="sms")add("bot",T("SMS mode: short plain-text replies, no buttons. Reply YES or NO.","SMS: nkyerɛkyerɛ tiawa, button biara nni hɔ. Bua YES anaa NO."))};
+function reset(){log.innerHTML="";st={step:"idle",entry:null,lang:"en",sex:"",lastQ:""};
+  add("bot","Akwaaba! Welcome to the Youth Services Navigator.\nAsk about skills, jobs or start-up support in Twi, English or both. I answer only from NJSMA's verified catalogue and I never decide who qualifies.");
+  setChips([["Tailoring training","I want to learn tailoring"],["Start-up kit","Is there a start-up kit for small business?"],["Adwuma","Me pɛ adwuma"],["Disability support","training for a person with disability"]])}
+$("#reset").onclick=()=>{reset();demoI=0;demoLabel()};
+
+/* ---------- officer console ---------- */
+const roleSel=$("#role");REF_DEPTS.forEach(d=>{const o=document.createElement("option");o.textContent=d;roleSel.appendChild(o)});
+roleSel.onchange=renderOfficer;
+function renderOfficer(){
+  const role=roleSel.value;const list=refs.filter(r=>role==="All departments"||r.dept===role);
+  $("#refEmpty").style.display=list.length?"none":"block";
+  const t=$("#refTable");
+  t.innerHTML="<tr><th>Ref</th><th>Service</th><th>Summary (consented)</th><th>Contact</th><th>Status</th><th>Review and decide</th></tr>";
+  list.slice().reverse().forEach(r=>{
+    const tr=document.createElement("tr");
+    tr.innerHTML=`<td>${r.id}<br><span class="muted">${new Date(r.created).toLocaleDateString()}</span></td><td>${esc(r.service)}<br><span class="muted">${esc(r.dept)}</span></td>
+      <td>${esc(r.summary)}<br><span class="muted">Q: "${esc(r.question)}" · ${r.channel} · ${r.lang==="tw"?"Twi":"English"}</span></td>
+      <td>${esc(r.first)}<br><span class="muted">${esc(r.phone)}</span></td>
+      <td><span class="tag ${r.status==="New"?"warn":""}">${r.status}</span></td><td></td>`;
+    const td=tr.lastChild;
+    [["Contacted","Contacted"],["Took up support","Took up support"],["Not suitable","Closed: not suitable"]].forEach(([l,s])=>{
+      const b=document.createElement("button");b.className="btn alt";b.style.margin="2px";b.textContent=l;
+      b.onclick=()=>{r.status=s;store.set("ysn_refs",refs);renderOfficer()};td.appendChild(b)});
+    t.appendChild(tr);
+  });
+}
+
+/* ---------- dashboard ---------- */
+const SEED_T=[["Tailoring and dressmaking training",31],["Youth start-up kits",24],["Youth Employment Agency (YEA) schemes",42],["Skills training for persons with disabilities",8],["Digital skills for women in small businesses",12],["National Apprenticeship Programme",17]];
+const SEED_U=[["Childcare while training",19],["Other / not in catalogue",11],["Welding apprenticeship intake (2026) (expired)",6],["Transport support",3]];
+function bars(rows){
+  const sup=rows.filter(r=>r[1]<5).length;const vis=rows.filter(r=>r[1]>=5);
+  const max=Math.max(1,...vis.map(r=>r[1]));
+  return vis.map(r=>`<div style="margin:6px 0"><div style="display:flex;justify-content:space-between;font-size:13px"><span>${esc(r[0])}</span><b>${r[1]}</b></div><div class="bar" style="width:${r[1]/max*100}%"></div></div>`).join("")+(sup?`<p class="muted">${sup} category(ies) with fewer than 5 are suppressed.</p>`:"");
+}
+function tally(pred){const m={};logs.filter(pred).forEach(l=>m[l.theme]=(m[l.theme]||0)+1);return m}
+function merge(seed,live){const m=Object.fromEntries(seed);Object.entries(live).forEach(([k,v])=>m[k]=(m[k]||0)+v);return Object.entries(m).sort((a,b)=>b[1]-a[1])}
+function renderDash(){
+  const th=merge(SEED_T,tally(l=>l.matched)),un=merge(SEED_U,tally(l=>!l.matched&&l.status!=="safeguard"));
+  const total=th.reduce((a,r)=>a+r[1],0)+un.reduce((a,r)=>a+r[1],0);
+  const liveRefs=refs.length,seedRefs=34,done=refs.filter(r=>r.status==="Took up support").length,seedDone=14;
+  const women=refs.filter(r=>r.sex==="F").length,men=refs.filter(r=>r.sex==="M").length;
+  $("#kpis").innerHTML=[["Questions (demo + yours)",total],["Consented referrals",seedRefs+liveRefs],["Took up support via referral",seedDone+done],["Referral → take-up",Math.round((seedDone+done)/(seedRefs+liveRefs)*100)+"%"]].map(([l,v])=>`<div class="kpi"><b>${v}</b><span>${l}</span></div>`).join("");
+  $("#themes").innerHTML=bars(th);$("#unmet").innerHTML=bars(un);
+  const sx=[["Women",58+women],["Men",49+men]];$("#sex").innerHTML=bars(sx)+`<p class="muted">Target: at least half young women. Currently ${Math.round(sx[0][1]/(sx[0][1]+sx[1][1])*100)}% (demo).</p>`;
+}
+$("#clearData").onclick=()=>{refs=[];logs=[];store.set("ysn_refs",refs);store.set("ysn_logs",logs);renderDash();renderOfficer()};
+
+/* ---------- catalogue ---------- */
+function renderCat(){
+  const t=$("#catTable");t.innerHTML="<tr><th>Entry</th><th>Owner</th><th>Last confirmed</th><th>Review by</th><th>Status</th></tr>";
+  CAT.forEach(e=>{const ok=isCurrent(e);const tr=document.createElement("tr");
+    tr.innerHTML=`<td>${esc(e.name)}</td><td>${esc(e.owner)}</td><td>${e.confirmed}</td><td>${e.review}</td><td><span class="tag ${ok?'':'bad'}">${ok?"Current":"Expired: withheld"}</span></td>`;t.appendChild(tr)});
+}
+document.body.appendChild($("#demoBtn"));
+let demoI=0;
+const clickTab=t=>document.querySelector('#tabs [data-t='+t+']').click();
+const DEMO=[
+ ["Step 1: Efua asks in Twi",()=>{$("#channel").value="whatsapp";$("#lang").value="auto";send("Me pɛ sɛ me sua ntadeɛ sɛw. Ɛwɔ ha anaa?",{sub:"Is there help with tailoring training near me?"})}],
+ ["Step 2: Efua asks “Do I qualify?”",()=>send("Metumi anya anaa?",{sub:"Do I qualify?"})],
+ ["Step 3: Prepare a referral (with consent)",()=>send("yes",{sub:"Prepare a referral (with my consent)"})],
+ ["Step 4: Consent and send",()=>{send("yes",{sub:"I agree"});setTimeout(()=>{const f=document.querySelector("form.form");if(!f)return;f.n.value="Efua";f.p.value="020 000 0000";f.s.value="F";f.requestSubmit()},500)}],
+ ["Step 5: Officer view",()=>clickTab("officer")],
+ ["Step 6: Help point",()=>{clickTab("chat");$("#channel").value="help";$("#channel").onchange()}],
+ ["Restart demo",()=>{reset()}]
+];
+const demoLabel=()=>$("#demoBtn").textContent="▶ "+DEMO[demoI][0];
+$("#demoBtn").onclick=()=>{DEMO[demoI][1]();demoI=(demoI+1)%DEMO.length;demoLabel()};
+reset();renderCat();
+</script>
+</body>
+</html>
